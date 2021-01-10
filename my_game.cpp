@@ -279,7 +279,7 @@ void screen(vector<int> S_X,vector<int> S_Y,int f_X,int &f_Y, int len){
 }
 
 int in_the_game(){
-    //设置蛇的初始状态：   出生在正中间， 整个棋盘为20*20
+    //设置蛇的初始状态：   出生在正中间， 至于整个多大我也忘了。
     int life = 1;
     Directions snake_dir;
     Directions &a = snake_dir;
