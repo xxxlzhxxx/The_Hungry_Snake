@@ -173,7 +173,31 @@ void before_start(){
     }while(my_clock(1) - now < 4);
 }
 
-void lose(int len){
+int choose_level(){
+    system("cls");
+    cout<<"\n"
+        "\n"
+        "\n"
+        "                                                 What level do you want to choose?\n"
+        "                                       You can choose from level 1--3, please press your number.\n";
+
+    int level;
+    int ch;
+    while(1){
+    	if (_kbhit()){
+			ch = _getch(); 
+			if (ch == 49){ level = 1;break; }//当按下ESC时循环，ESC键的键值时27.
+            else if(ch == 50){level = 2;break;}
+            else if(ch == 51){level =3 ;break;}
+		}
+	}
+    return level;
+}
+
+
+
+
+int lose(int len){
     system("cls");
     cout<<"\n"
                 "\n"
@@ -192,14 +216,24 @@ void lose(int len){
                 "|||||||||||||||||  ||||||||||||||||||| |||||||||||||| |||||||||||||||||||||  ||||||||||||| ||||||||||||||||||||||||||||\n"
                 "|||||||||||||||||  ||||||||||||||||||| |||||||||||||| |||||||||||||||||||||  ||||||||||||| ||||||||||||||||||||||||||||\n"
                 "|||||||||||||||||              |||||||                |||||||||||            |||||||||||||             ||||||||||||||||\n"
-                "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
-                "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
-                "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
-                "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
-                "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
-                "=========================================="<<"press 'Esc' to quit"<<"===========================================================\n"
-                "========================================="<<"your final lenghth is "<<len<<"! ======================================================\n"
-                "==========================================================================================================================\n";
+                "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
+                "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
+                "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
+                "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
+                "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n"
+                "==============================="<<" press 'Esc' to quit, press anything else to play again."<<"================================\n"
+                "==========================================="<<">  your final lenghth is "<<len<<"! ================================================\n"
+                "=======================================================================================================================\n";
+    
+    int end = 1;
+    while(1){
+        if(_kbhit()){
+            int ch = _getch(); 
+            if(ch == 27) end = 0;
+            break;
+        }
+    }
+    return end;           
 }
 
 enum Directions{ up, down, leftt, rightt};
@@ -250,8 +284,8 @@ void screen(vector<int> S_X,vector<int> S_Y,int f_X,int &f_Y, int len){
      			 " |                                                                       |          1. press 'A' to turn left.         \n"
      			 " |                                                                       |          2. press 'D' to turn right.        \n"
      			 " |                                                                       |          3. press 'Esc' to pause            \n"
+     			 " |                                                                       |  DO NOT PRESS YOUR MOSE OR IT WILL GO DARK  \n"
      			 " |                                                                       |          The other keys are useless!!!      \n"
-     			 " |                                                                       |                                             \n"
      			 " |                                                                       |        -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-      \n"
      			 " |                                                                       |                   RULES                     \n"
      			 " |                                                                       |                                             \n"
@@ -278,8 +312,14 @@ void screen(vector<int> S_X,vector<int> S_Y,int f_X,int &f_Y, int len){
                 cout<<str;
 }
 
-int in_the_game(){
-    //设置蛇的初始状态：   出生在正中间， 至于整个多大我也忘了。
+int in_the_game(int level){
+     //判断选择难度
+    double your_level;
+    if(level == 1) your_level = 0.5;
+    else if(level == 2) your_level = 0.3;
+    else if(level == 3) your_level = 0.15;
+
+    //设置蛇的初始状态：   出生在正中间， 整个棋盘为20*20
     int life = 1;
     Directions snake_dir;
     Directions &a = snake_dir;
@@ -288,7 +328,7 @@ int in_the_game(){
     vector<int> S_X;
     vector<int> S_Y;
     S_X.push_back(x);S_Y.push_back(y);S_X.push_back(x); S_Y.push_back(y-1); S_X.push_back(x); S_Y.push_back(y-2);
-    int this_time = my_clock(0.3);
+    int this_time = my_clock(your_level);
     int f_X, f_Y, f_state = 0;
     int *s_X = &S_X[0];
     int *s_Y = &S_Y[0];
@@ -299,7 +339,7 @@ int in_the_game(){
     do{
         judge_dir(a);
         //回合
-        if(my_clock(0.3) != this_time){      //这里应该是一回合内干的事：
+        if(my_clock(your_level) != this_time){      //这里应该是一回合内干的事：
 
          this_time ++;
         //生成果实：
@@ -358,18 +398,19 @@ int main(){
 
 //  第一步：启动游戏
     int the_start_signal;
+    int the_quit_signal = 1;
     the_start_signal = if_start();
-    cout<<the_start_signal;
-    cout<<endl;
     if(the_start_signal == -1) system("cls");
-
 //  第二步：开始游戏
     else if(the_start_signal == 1) {
-        before_start();  //开始前倒计时
-        system("cls");
-        int len = in_the_game();
-        lose(len);
+        while(the_quit_signal == 1){
+            int level = choose_level();
+            before_start();  //开始前倒计时
+            system("cls");
+            int len = in_the_game(level);
+            the_quit_signal = lose(len);
+            }
         }
-    system("pause");
+    
     return 0;
 }
